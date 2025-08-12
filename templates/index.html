@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-medical-500">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-center">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">🧠 Medical AI Agent</h1>
+                    <p class="text-gray-600">AI-Powered Medical Data Analysis & Web Search</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- CSV Upload Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                📊 CSV Upload & Database Conversion
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Upload Form -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Select Dataset Type:
+                        </label>
+                        <select id="datasetType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500">
+                            <option value="heart">Heart Disease Dataset</option>
+                            <option value="cancer">Cancer Prediction Dataset</option>
+                            <option value="diabetes">Diabetes Dataset</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Upload CSV File:
+                        </label>
+                        <input type="file" id="csvFile" accept=".csv" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500">
+                    </div>
+                    
+                    <button onclick="uploadCSV()" 
+                            class="w-full bg-medical-500 hover:bg-medical-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                        🔄 Convert CSV to SQLite
+                    </button>
+                </div>
+
+                <!-- Upload Status -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-700 mb-3">Upload Status:</h3>
+                    <div id="uploadStatus" class="text-sm text-gray-600">
+                        Ready to upload CSV files...
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-700 mb-2">Dataset Information:</h4>
+                        <div class="text-xs text-gray-600 space-y-1">
+                            <div>• Heart Disease: 1025 rows, 14 columns</div>
+                            <div>• Cancer: 1500 rows, 9 columns</div>
+                            <div>• Diabetes: 768 rows, 9 columns</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Query Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                🤖 AI Query Interface
+            </h2>
+
+            <!-- Query Examples -->
+            <div class="mb-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h3 class="font-semibold text-blue-800 mb-3">Example Queries:</h3>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="font-medium text-blue-700 mb-2">📊 Data Questions:</div>
+                        <div class="space-y-1 text-blue-600">
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "What's the average age in heart disease data?"</div>
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "Count of diabetic patients"</div>
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "Cancer distribution by gender"</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-blue-700 mb-2">🌐 General Questions:</div>
+                        <div class="space-y-1 text-blue-600">
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "What are heart disease symptoms?"</div>
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "Diabetes treatment options"</div>
+                            <div onclick="setQuery(this)" class="cursor-pointer hover:bg-blue-100 p-1 rounded">• "Cancer prevention methods"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Input -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Ask your medical question:
+                    </label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="queryInput" placeholder="e.g., What's the average age in diabetes data?" 
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500">
+                        <button onclick="submitQuery()" 
+                                class="bg-medical-500 hover:bg-medical-600 text-white font-semibold px-6 py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                            🔍 Ask AI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="hidden flex items-center justify-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-500"></div>
+                    <span class="ml-2 text-gray-600">Processing your query...</span>
+                </div>
+
+                <!-- Response Area -->
+                <div id="responseArea" class="hidden">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                            🎯 AI Response:
+                        </h3>
+                        <div id="responseContent" class="text-gray-800 whitespace-pre-wrap"></div>
+                        <div class="mt-3 text-xs text-gray-500" id="responseTime"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-8 grid md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+                <div class="text-2xl mb-3">🗄️</div>
+                <h3 class="font-bold text-gray-800 mb-2">Database Tools</h3>
+                <p class="text-gray-600 text-sm">Convert CSV files to SQLite databases and query medical data with natural language.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+                <div class="text-2xl mb-3">🌐</div>
+                <h3 class="font-bold text-gray-800 mb-2">Web Search</h3>
+                <p class="text-gray-600 text-sm">Get general medical knowledge, symptoms, treatments, and definitions from web sources.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+                <div class="text-2xl mb-3">🤖</div>
+                <h3 class="font-bold text-gray-800 mb-2">Smart Routing</h3>
+                <p class="text-gray-600 text-sm">AI automatically routes questions to the appropriate tool based on content analysis.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-300">Medical AI Agent - Built with Flask, SQLite, and AI-powered routing</p>
+        </div>
+    </footer>
+
+    <script>
+        function uploadCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const datasetType = document.getElementById('datasetType').value;
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            if (!fileInput.files[0]) {
+                statusDiv.innerHTML = '<div class="text-red-600">❌ Please select a CSV file</div>';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('csvFile', fileInput.files[0]);
+            formData.append('datasetType', datasetType);
+            
+            statusDiv.innerHTML = '<div class="text-blue-600">🔄 Uploading and converting...</div>';
+            
+            fetch('/upload_csv', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class="text-green-600">✅ ${data.message}</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class="text-red-600">❌ ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                statusDiv.innerHTML = `<div class="text-red-600">❌ Error: ${error}</div>`;
+            });
+        }
+        
+        function submitQuery() {
+            const queryInput = document.getElementById('queryInput');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+            const responseTime = document.getElementById('responseTime');
+            
+            const question = queryInput.value.trim();
+            if (!question) {
+                alert('Please enter a question');
+                return;
+            }
+            
+            // Show loading, hide response
+            loadingIndicator.classList.remove('hidden');
+            responseArea.classList.add('hidden');
+            
+            const startTime = new Date();
+            
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({question: question})
+            })
+            .then(response => response.json())
+            .then(data => {
+                const endTime = new Date();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+                
+                loadingIndicator.classList.add('hidden');
+                responseArea.classList.remove('hidden');
+                
+                if (data.success) {
+                    responseContent.textContent = data.response;
+                    responseTime.textContent = `Response time: ${duration}s`;
+                } else {
+                    responseContent.textContent = `Error: ${data.message}`;
+                    responseTime.textContent = '';
+                }
+            })
+            .catch(error => {
+                loadingIndicator.classList.add('hidden');
+                responseArea.classList.remove('hidden');
+                responseContent.textContent = `Network error: ${error}`;
+                responseTime.textContent = '';
+            });
+        }
+        
+        function setQuery(element) {
+            const text = element.textContent.replace('• ', '').replace(/"/g, '');
+            document.getElementById('queryInput').value = text;
+        }
+        
+        // Enter key support for query input
+        document.getElementById('queryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitQuery();
+            }
+        });
+    </script>
+</body>
+</html>
