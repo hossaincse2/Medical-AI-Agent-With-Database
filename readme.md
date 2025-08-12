@@ -11,6 +11,9 @@ medical_ai_agent/
 └── databases/            # SQLite databases directory (auto-created)
 ```
 
+![Screenshot.png](img/Screenshot.png)
+![Screenshot_1.png](img/Screenshot_1.png)
+
 ## 📦 Requirements.txt
 ```
 Flask==2.3.3
